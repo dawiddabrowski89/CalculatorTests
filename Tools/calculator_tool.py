@@ -22,7 +22,7 @@ operations_id = {
 }
 
 
-def click_digits(driver, digit):
+def click_digits(driver: 'webdriver', digit: 'str') -> None:
     for i in digit:
         chosen_digit = driver.find_element_by_id(buttons_id[i])
         chosen_digit.click()
@@ -30,7 +30,7 @@ def click_digits(driver, digit):
         assert re.match(".*" + i + ".*", result), "Wrong value for first digit"
 
 
-def click_operator(driver, operator):
+def click_operator(driver: 'webdriver', operator: 'str') -> None:
     op_add = driver.find_element_by_id(operations_id[operator])
     op_add.click()
     result = driver.find_element_by_id("com.sec.android.app.popupcalculator:id/calc_edt_formula").text
@@ -38,7 +38,7 @@ def click_operator(driver, operator):
         assert re.match(".*\\+.*", result), "Wrong value for operator"
 
 
-def click_equal(driver, correct_result):
+def click_equal(driver: 'webdriver', correct_result: 'str') -> None:
     equal = driver.find_element_by_id("com.sec.android.app.popupcalculator:id/calc_keypad_btn_equal")
     equal.click()
     result = driver.find_element_by_id("com.sec.android.app.popupcalculator:id/calc_edt_formula").text
@@ -47,7 +47,7 @@ def click_equal(driver, correct_result):
     assert re.match(".*" + correct_result + ".*", result), "Wrong value for sum"
 
 
-def generate_data(digit_range=10, number_of_tests=3):
+def generate_data(digit_range: int = 10, number_of_tests: int = 3) -> 'List':
     """
         Return the list of test variants
         Operations:
@@ -59,7 +59,7 @@ def generate_data(digit_range=10, number_of_tests=3):
     list_of_tests = []
     for i in range(number_of_tests):
         # operator = random.randint(1, 4)
-        operator = 2
+        operator = 1
         operator_char = None
         first_digit = random.randint(0, digit_range)
         second_digit = random.randint(0, digit_range)
