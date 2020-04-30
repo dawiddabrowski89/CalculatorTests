@@ -16,9 +16,9 @@ buttons_id = {
 
 operations_id = {
     '+': 'com.sec.android.app.popupcalculator:id/calc_keypad_btn_add',
-    '-': 'com.sec.android.app.popupcalculator:id/calc_keypad_btn_sub',
-    '*': 'com.sec.android.app.popupcalculator:id/calc_keypad_btn_mul',
-    '/': 'com.sec.android.app.popupcalculator:id/calc_keypad_btn_div'
+    '−': 'com.sec.android.app.popupcalculator:id/calc_keypad_btn_sub',
+    '×': 'com.sec.android.app.popupcalculator:id/calc_keypad_btn_mul',
+    '÷': 'com.sec.android.app.popupcalculator:id/calc_keypad_btn_div'
 }
 
 
@@ -27,15 +27,14 @@ def click_digits(driver: 'webdriver', digit: 'str') -> None:
         chosen_digit = driver.find_element_by_id(buttons_id[i])
         chosen_digit.click()
         result = driver.find_element_by_id("com.sec.android.app.popupcalculator:id/calc_edt_formula").text
-        assert re.match(".*" + i + ".*", result), "Wrong value for first digit"
+        assert i in result, "Wrong value for digit"
 
 
 def click_operator(driver: 'webdriver', operator: 'str') -> None:
     op_add = driver.find_element_by_id(operations_id[operator])
     op_add.click()
     result = driver.find_element_by_id("com.sec.android.app.popupcalculator:id/calc_edt_formula").text
-    if operator == '+':
-        assert re.match(".*\\+.*", result), "Wrong value for operator"
+    assert operator in result, "Wrong value for operator"
 
 
 def click_equal(driver: 'webdriver', correct_result: 'str') -> None:
@@ -44,10 +43,10 @@ def click_equal(driver: 'webdriver', correct_result: 'str') -> None:
     result = driver.find_element_by_id("com.sec.android.app.popupcalculator:id/calc_edt_formula").text
     print("Result:" + result)
     print("Correct result:" + correct_result)
-    assert re.match(".*" + correct_result + ".*", result), "Wrong value for sum"
+    assert correct_result in result, "Wrong value for operation"
 
 
-def generate_data(digit_range: int = 10, number_of_tests: int = 3) -> 'List':
+def generate_data(digit_range: int = 10, number_of_tests: int = 4) -> 'List':
     """
         Return the list of test variants
         Operations:
@@ -58,8 +57,7 @@ def generate_data(digit_range: int = 10, number_of_tests: int = 3) -> 'List':
     """
     list_of_tests = []
     for i in range(number_of_tests):
-        # operator = random.randint(1, 4)
-        operator = 1
+        operator = random.randint(1, 4)
         operator_char = None
         first_digit = random.randint(0, digit_range)
         second_digit = random.randint(0, digit_range)
@@ -68,14 +66,18 @@ def generate_data(digit_range: int = 10, number_of_tests: int = 3) -> 'List':
             operator_char = '+'
         elif operator == 2:
             result = first_digit - second_digit
-            operator_char = '-'
+            if result < 0:
+                result = '−' + str(abs(result))
+            operator_char = '−'
         elif operator == 3:
             result = first_digit * second_digit
-            operator_char = '*'
+            operator_char = '×'
         elif operator == 4:
             result = first_digit / second_digit
-            result = round(result)
-            operator_char = '/'
+            result = str(round(result, 2))
+            if '.' in result:
+                result = result.replace('.', ',')
+            operator_char = '÷'
 
         test = (str(first_digit), str(second_digit), str(result), operator_char)
         list_of_tests.append(test)
