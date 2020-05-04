@@ -1,5 +1,6 @@
-import re
+import math
 import random
+from os import truncate
 
 buttons_id = {
     '0': 'com.sec.android.app.popupcalculator:id/calc_keypad_btn_00',
@@ -41,9 +42,12 @@ def click_equal(driver: 'webdriver', correct_result: 'str') -> None:
     equal = driver.find_element_by_id("com.sec.android.app.popupcalculator:id/calc_keypad_btn_equal")
     equal.click()
     result = driver.find_element_by_id("com.sec.android.app.popupcalculator:id/calc_edt_formula").text
-    print("Result:" + result)
-    print("Correct result:" + correct_result)
     assert correct_result in result, "Wrong value for operation"
+
+
+def round_down(n, decimals=0):
+    multiplier = 10 ** decimals
+    return math.floor(n * multiplier) / multiplier
 
 
 def generate_data(digit_range: int = 10, number_of_tests: int = 4) -> 'List':
@@ -61,6 +65,8 @@ def generate_data(digit_range: int = 10, number_of_tests: int = 4) -> 'List':
         operator_char = None
         first_digit = random.randint(0, digit_range)
         second_digit = random.randint(0, digit_range)
+        while operator == 4 and second_digit == 0:
+            second_digit = random.randint(0, digit_range)
         if operator == 1:
             result = first_digit + second_digit
             operator_char = '+'
@@ -74,7 +80,10 @@ def generate_data(digit_range: int = 10, number_of_tests: int = 4) -> 'List':
             operator_char = '×'
         elif operator == 4:
             result = first_digit / second_digit
-            result = str(round(result, 2))
+            if result.is_integer():
+                result = str(int(result))
+            else:
+                result = str(round_down(result, 2))
             if '.' in result:
                 result = result.replace('.', ',')
             operator_char = '÷'
