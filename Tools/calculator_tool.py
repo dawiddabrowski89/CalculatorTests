@@ -69,7 +69,6 @@ def result_parser(result):
         result = ""
         for i in list_temp:
             result += i
-
     return result
 
 
